@@ -1,0 +1,12 @@
+version: '2.3'
+services:
+  gmm-api:
+    image: gmm:latest
+    container_name: gmm-api
+    restart: unless-stopped
+    environment:
+      - ENV=prod
+    volumes:
+      - ./conf/:/conf/
+    ports:
+      - 9090:80
