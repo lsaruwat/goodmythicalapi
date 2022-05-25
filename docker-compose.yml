@@ -8,5 +8,6 @@ services:
       - ENV=prod
     volumes:
       - ./conf/:/conf/
+      - ./data:/app/data
     ports:
       - 9090:80

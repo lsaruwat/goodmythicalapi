@@ -8,8 +8,11 @@ import decimal
 class GmmApi(object):
 
     def __init__(self):
+        logging.basicConfig(format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+                            datefmt='%Y-%m-%d:%H:%M:%S',
+                            level=logging.INFO)
+
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
 
         try:
             with open("config.json") as file:
@@ -33,7 +36,7 @@ class GmmApi(object):
 
         # for key in data:
         #     responseSchema[key] = data[key]
-        self.logger.info(responseSchema)
+        # self.logger.info(responseSchema)
         return json.dumps(responseSchema, default=self.json_helper)
         #return json.dumps(responseSchema)
 
@@ -71,13 +74,6 @@ class GmmApi(object):
 
             #logging traffic
             self.logger.info(postData)
-            logData = postData.copy()
-            #don't log password fields as they are not hashed
-            try:
-                del logData["password"]
-            except KeyError as k:
-                #long hair don't care
-                pass
 
         except Exception as e:
             self.logger.error("There was a problem getting data: %s" % str(e))
@@ -94,7 +90,7 @@ class GmmApi(object):
         try:
             methodCall = eval("self.%s" % method)
             status, body = methodCall(postData)
-        except AttributeError as naw:
+        except TypeError as naw:
             self.logger.error(naw)
             resp.status = falcon.HTTP_400
             resp.text = json.dumps({
@@ -111,3 +107,39 @@ class GmmApi(object):
         code = falcon.HTTP_200
         body = self.schemaResponse("success", code, {"details" : postData})
         return (code, body)
+
+    @staticmethod
+    def isNoneOrEmpty(thing):
+        if thing and thing !='':
+            return False
+        return True
+
+    @staticmethod
+    def isSomething(thing):
+        if thing and thing !='':
+            return True
+        return False
+
+    @staticmethod
+    def getMaxPages(listSize, limit):
+        pages = listSize // limit
+        if listSize % limit != 0:
+            pages+=1
+        return pages
+
+    @staticmethod
+    def listToCsvParams(list):
+        csv = ''
+        for i in list:
+            csv += (i + ',')
+        return csv[:-1]
+
+    @staticmethod
+    def searchAThing(thing, searchStr):
+        words = searchStr.split(' ')
+        if searchStr not in thing:
+            for word in words:
+                if word not in thing:
+                    return False
+        return True
+
