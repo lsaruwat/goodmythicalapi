@@ -135,13 +135,13 @@ class GmmApi(object):
         return csv[:-1]
 
     @staticmethod
-    def searchAThing(thing, searchStr):
-        thing = thing.lower()
+    def searchAString(string, searchStr):
+        string = string.lower()
         searchStr = searchStr.lower()
         words = searchStr.split(' ')
-        if searchStr not in thing:
+        if searchStr not in string:
             for word in words:
-                if word not in thing:
+                if word not in string:
                     return False
         return True
 

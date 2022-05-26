@@ -30,14 +30,17 @@ class Youtube(GmmApi):
 	def getAllEpisodeIds(self, postData):
 		# optional params
 		writeToFile = postData.get('writeToFile')
+		live = postData.get('live')
 
-		self.seasonArr = []
-		for i in range(len(self.playlistArr)):
-			seasonIds = self.schemaToDict(self.getPlaylistBySeason({'season' : i+1}))
-			idArr = []
-			for id in seasonIds:
-				idArr.append(id)
-			self.seasonArr.append(idArr)
+
+		if live:
+			self.seasonArr = []
+			for i in range(len(self.playlistArr)):
+				seasonIds = self.schemaToDict(self.getPlaylistBySeason({'season' : i+1}))
+				idArr = []
+				for id in seasonIds:
+					idArr.append(id)
+				self.seasonArr.append(idArr)
 
 		if writeToFile:
 			with open('data/allIds.json', 'w') as file:
@@ -46,166 +49,6 @@ class Youtube(GmmApi):
 		code = falcon.HTTP_200
 		body = self.schemaResponse("success", code, self.seasonArr)
 		return (code, body)
-
-	def readAllEpisodeIds(self):
-		try:
-			with open('data/allIds.json') as file:
-				ids = file.read()
-		except Exception as e:
-			return []
-		return json.loads(ids)
-
-
-
-	def buildCacheFromFile(self, postData=None):
-		try:
-			with open('data/savedData.json') as file:
-				fileData = file.read()
-			self.cached_ids = json.loads(fileData)
-			self.logger.info("CACHE BUILT WITH %s ITEMS" % len(self.cached_ids))
-		except Exception as e:
-			self.logger.info("CACHE FILE MISSING")
-
-	def buildSearchFields(self):
-		for id,item in self.cached_ids.items():
-			if self.isNoneOrEmpty(item.get('searchSet')):
-				temp = set()
-				tempStr = ''
-				lower = item['snippet']['description'].lower()
-				words = lower.split(' ')
-				simpleWords = filter(str.isalnum, words)
-				for word in simpleWords:
-					temp.add(word)
-				for i in temp:
-					tempStr+= i+' '
-				tempStr = tempStr[:-1]
-				self.cached_ids[id]['searchSet'] = temp
-				self.cached_ids[id]['searchWords'] = tempStr
-
-	def dumpCache(self, postData):
-		with open('data/savedData.json', 'w') as file:
-			file.write(json.dumps(self.cached_ids))
-		code = falcon.HTTP_200
-		body = self.schemaResponse("success", code, {"details": "Dumped %s items to file" % len(self.cached_ids)})
-		return (code, body)
-
-	def clearCache(self, postData):
-		code = falcon.HTTP_200
-		body = self.schemaResponse("success", code, {"details": "Cleared %s items from cache" % len(self.cached_ids)})
-		self.cached_ids = {}
-		return (code, body)
-
-	def cacheToResponseify(self, cacheResponse):
-		responsified = [{'items' : [], 'pageInfo' : {'totalResults' : len(cacheResponse)}}]
-		for item in cacheResponse:
-			item['cached'] = True
-			responsified[0]['items'].append(item)
-		return responsified
-
-	def simplify(self, responses):
-		simplified = {'totalResults' : len(responses), 'items' : []}
-		for item in responses:
-			simplified['items'].append({
-				'id' : item['id'],
-				'cached' : item.get('cached'),
-				'title': item['snippet']['title'],
-				'publishedAt' : item['snippet']['publishedAt'],
-				'channelId': item['snippet']['channelId'],
-				'channelTitle': item['snippet']['channelTitle'],
-				'statistics': item['statistics'],
-				'description': item['snippet']['description'],
-			})
-		return simplified
-
-	def getPlaylistBySeason(self, postData):
-		"EAAaBlBUOkNESQ"
-		try:
-			# mandatory params
-			season = postData['season']
-
-			# optional params
-			pass
-		except Exception as e:
-			self.logger.error(e)
-			code = falcon.HTTP_406
-			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
-			return (code, body)
-
-		try:
-			season = int(season)
-			playlistId = self.playlistArr[season-1]
-		except Exception as e:
-			self.logger.error(e)
-			code = falcon.HTTP_406
-			body = self.schemaResponse("error", code, {"details": "Invalid Season %s"%season})
-			return (code, body)
-
-		self.logger.info("getting ids for season %s" % season)
-
-		params = {
-			'part': 'snippet',
-			'playlistId': playlistId,
-			'key': self.youtubeApiKey,
-			'maxResults': 50
-		}
-
-		videoIds = []
-		stuffToGet = True
-		try:
-			url = self.youtubeBaseUrl + '/playlistItems'
-			while stuffToGet:
-				response = requests.get(url, params=params)
-				if response.status_code == 200:
-					data = json.loads(response.text)
-
-					items = data.get('items') if self.isSomething(data.get('items')) else False
-					nextPageToken = data.get('nextPageToken') if self.isSomething(data.get('nextPageToken')) else False
-
-					for item in items:
-						videoIds.append({
-							'index' : item['snippet']['position'],
-							'id' : item['snippet']['resourceId']['videoId']
-						})
-					if nextPageToken:
-						params['pageToken'] = nextPageToken
-					else:
-						stuffToGet = False
-				else:
-					self.logger.info(url)
-					self.logger.info(params)
-					self.logger.error("ERROR: %s-%s" % (response.status_code, response.text))
-					code = falcon.HTTP_503
-					body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
-					return (code, body)
-
-		except Exception as e:
-			self.logger.error("REQUESTS ERROR: %s" % e)
-			code = falcon.HTTP_503
-			body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
-			return (code, body)
-
-		# Results should be in order from youtube but who knows so just sort by position
-		sortedByPosition = sorted(videoIds, key=lambda d: d['index'])
-		simpleList = []
-		for item in sortedByPosition:
-			simpleList.append(item['id'])
-
-		code = falcon.HTTP_200
-		body = self.schemaResponse("success", code, simpleList)
-		return (code, body)
-
-
-	def combineResults(self, results):
-		items = []
-		itemCount = 0
-		for result in results:
-			items.append(result.get('items'))
-			itemCount+= int(result.get('pageInfo').get('totalResults'))
-		combined = {
-			'items' : items,
-			'totalResults' : itemCount
-		}
-		return combined
 
 	def getVideoDetailsById(self, postData):
 		try:
@@ -222,7 +65,7 @@ class Youtube(GmmApi):
 
 		if self.isSomething(self.cached_ids.get(videoId)):
 			code = falcon.HTTP_200
-			body = self.schemaResponse("success", code, {"items" : self.cached_ids[videoId]})
+			body = self.schemaResponse("success", code, self.cached_ids[videoId])
 			return (code, body)
 		else:# go get the data from youtube
 			params = {
@@ -244,7 +87,7 @@ class Youtube(GmmApi):
 				items = data.get('items')
 				if items and len(items):
 					code = falcon.HTTP_200
-					body = self.schemaResponse("success", code, data)
+					body = self.schemaResponse("success", code, items)
 					self.cached_ids[videoId] = data
 				else:
 					code = falcon.HTTP_404
@@ -257,161 +100,6 @@ class Youtube(GmmApi):
 				body = self.schemaResponse("error", code, {"details" : "Youtube aint happy"})
 				return (code, body)
 
-	def searchRealTimeVideoDescription(self, postData):
-		try:
-			# mandatory params
-			searchStr = postData['searchStr']
-
-			# optional params
-			pass
-		except Exception as e:
-			self.logger.error(e)
-			code = falcon.HTTP_406
-			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
-			return (code, body)
-
-		self.logger.info("Searching video descriptions for '%s'" % searchStr)
-
-		responses = []
-		temp = []
-		allIds = []
-		seasonArr = self.seasonArr[1:]
-		# check cache first
-		for season in seasonArr:
-			for id in season:
-				allIds.append(id)
-				if self.isSomething(self.cached_ids.get(id)):
-					thing = self.cached_ids[id]['searchWords']
-					if self.searchAThing(thing, searchStr):
-						responses.append(self.cached_ids[id])
-				else:
-					temp.append(id)
-		start = time()
-		end = time()
-		total = end - start
-		self.logger.info("responseify took %ss to complete" % total)
-
-		if len(responses) == len(allIds):
-			responses = self.cacheToResponseify(responses)
-			combined = self.combineResults(responses)
-			code = falcon.HTTP_200
-			body = self.schemaResponse("success", code, combined)
-			return (code, body)
-		if len(temp):
-			allIds = temp
-
-		pages = self.getMaxPages(len(allIds), self.idLimit)
-		for i in range(pages):
-			pageIds = allIds[:self.idLimit]  # get a slice of ids
-			allIds = allIds[self.idLimit:]  # now cut those from the list
-			params = {
-				'part': 'snippet,contentDetails,statistics',
-				'id': self.listToCsvParams(pageIds),
-				'key': self.youtubeApiKey
-			}
-			try:
-				url = self.youtubeBaseUrl + '/videos'
-				response = requests.get(url, params=params)
-			except Exception as e:
-				self.logger.error("REQUESTS ERROR: %s" % e)
-				code = falcon.HTTP_503
-				body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
-				return (code, body)
-
-			if response.status_code == 200:
-				data = json.loads(response.text)
-				items = data.get('items')
-				if items and len(items):
-					for item in items:
-						self.cached_ids[item['id']] = item
-						thing = self.cached_ids[id]['snippet']['description']
-						if self.searchAThing(thing, searchStr):
-							responses.append(data)
-				else:
-					self.logger.error("404: %s" % pageIds)
-					code = falcon.HTTP_404
-					body = self.schemaResponse("error", code, data)
-					return (code, body)
-			else:
-				self.logger.error("Youtube Angry: %s-%s" % (response.status_code, response.text))
-				code = response.status_code
-				body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
-				return (code, body)
-
-		if len(responses) == 0:
-			code = falcon.HTTP_404
-			body = self.schemaResponse("error", code, {"details": "No videos matched"})
-			return (code, body)
-
-		combined = self.combineResults(responses)
-		code = falcon.HTTP_200
-		body = self.schemaResponse("success", code, combined)
-		return (code, body)
-
-	def searchVideoDescription(self, postData):
-		try:
-			# mandatory params
-			searchStr = postData['searchStr']
-
-			# optional params
-			pass
-		except Exception as e:
-			self.logger.error(e)
-			code = falcon.HTTP_406
-			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
-			return (code, body)
-
-		self.logger.info("Searching video descriptions for '%s'" % searchStr)
-
-		responses = []
-		seasonArr = self.seasonArr[1:]
-		# check cache first
-		for season in seasonArr:
-			for id in season:
-				if self.isSomething(self.cached_ids.get(id)):
-					thing = self.cached_ids[id]['snippet']['description']
-					if self.searchAThing(thing, searchStr):
-						responses.append(self.cached_ids[id])
-
-		responses = self.simplify(responses)
-		#responses = self.cacheToResponseify(responses)
-		code = falcon.HTTP_200
-		body = self.schemaResponse("success", code, responses)
-		return (code, body)
-
-	def searchVideoTags(self, postData):
-		try:
-			# mandatory params
-			searchStr = postData['searchStr']
-
-			# optional params
-			pass
-		except Exception as e:
-			self.logger.error(e)
-			code = falcon.HTTP_406
-			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
-			return (code, body)
-
-		self.logger.info("Searching video descriptions for '%s'" % searchStr)
-
-		responses = []
-		seasonArr = self.seasonArr[1:]
-		# check cache first
-		for season in seasonArr:
-			for id in season:
-				if self.isSomething(self.cached_ids.get(id)):
-					thing = self.cached_ids[id]['snippet']['tags']
-					if self.searchAThing(thing, searchStr):
-						responses.append(self.cached_ids[id])
-
-
-		responses = self.cacheToResponseify(responses)
-		combined = self.combineResults(responses)
-		code = falcon.HTTP_200
-		body = self.schemaResponse("success", code, combined)
-		return (code, body)
-
-
 	def getVideoDetailsBySeason(self, postData):
 		'https://youtube.googleapis.com/youtube/v3/playlistItems?id=efasdfasdf&'
 		try:
@@ -423,12 +111,12 @@ class Youtube(GmmApi):
 		except Exception as e:
 			self.logger.error(e)
 			code = falcon.HTTP_406
-			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
+			body = self.schemaResponse("error", code, {"details": "Missing required fields: %s" % e})
 			return (code, body)
 
 		try:
 			season = int(season)
-			seasonIds = self.seasonArr[season]
+			seasonIds = self.seasonArr[season-1]
 			self.logger.info("GETTING SEASON %s episodes %s" % (season, len(seasonIds)))
 		except Exception as e:
 			self.logger.error(e)
@@ -445,9 +133,8 @@ class Youtube(GmmApi):
 			else:
 				temp.append(id)
 
-		responses = self.cacheToResponseify(responses)
-
 		if len(responses) == len(seasonIds):
+			responses = self.cacheToResponseify(responses)
 			combined = self.combineResults(responses)
 			code = falcon.HTTP_200
 			body = self.schemaResponse("success", code, combined)
@@ -491,6 +178,157 @@ class Youtube(GmmApi):
 				body = self.schemaResponse("error", code, {"details" : "Youtube aint happy"})
 				return (code, body)
 
+		combined = self.combineResults(responses)
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, combined)
+		return (code, body)
+
+	def searchRealTimeVideoDescription(self, postData):
+		try:
+			# mandatory params
+			searchStr = postData['searchStr']
+
+			# optional params
+			pass
+		except Exception as e:
+			self.logger.error(e)
+			code = falcon.HTTP_406
+			body = self.schemaResponse("error", code, {"details": "Missing required fields: %s" % e})
+			return (code, body)
+
+		self.logger.info("Searching video descriptions for '%s'" % searchStr)
+
+		responses = []
+		temp = []
+		allIds = []
+		seasonArr = self.seasonArr[1:]
+		# check cache first
+		for season in seasonArr:
+			for id in season:
+				allIds.append(id)
+				if self.isSomething(self.cached_ids.get(id)):
+					string = self.cached_ids[id]['searchWords']
+					if self.searchAString(string, searchStr):
+						responses.append(self.cached_ids[id])
+				else:
+					temp.append(id)
+		start = time()
+		end = time()
+		total = end - start
+		self.logger.info("responseify took %ss to complete" % total)
+
+		if len(responses) == len(allIds):
+			responses = self.cacheToResponseify(responses)
+			combined = self.combineResults(responses)
+			code = falcon.HTTP_200
+			body = self.schemaResponse("success", code, combined)
+			return (code, body)
+		if len(temp):
+			allIds = temp
+
+		pages = self.getMaxPages(len(allIds), self.idLimit)
+		for i in range(pages):
+			pageIds = allIds[:self.idLimit]  # get a slice of ids
+			allIds = allIds[self.idLimit:]  # now cut those from the list
+			params = {
+				'part': 'snippet,contentDetails,statistics',
+				'id': self.listToCsvParams(pageIds),
+				'key': self.youtubeApiKey
+			}
+			try:
+				url = self.youtubeBaseUrl + '/videos'
+				response = requests.get(url, params=params)
+			except Exception as e:
+				self.logger.error("REQUESTS ERROR: %s" % e)
+				code = falcon.HTTP_503
+				body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
+				return (code, body)
+
+			if response.status_code == 200:
+				data = json.loads(response.text)
+				items = data.get('items')
+				if items and len(items):
+					for item in items:
+						self.cached_ids[item['id']] = item
+						string = self.cached_ids[id]['snippet']['description']
+						if self.searchAString(string, searchStr):
+							responses.append(data)
+				else:
+					self.logger.error("404: %s" % pageIds)
+					code = falcon.HTTP_404
+					body = self.schemaResponse("error", code, data)
+					return (code, body)
+			else:
+				self.logger.error("Youtube Angry: %s-%s" % (response.status_code, response.text))
+				code = response.status_code
+				body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
+				return (code, body)
+
+		if len(responses) == 0:
+			code = falcon.HTTP_404
+			body = self.schemaResponse("error", code, {"details": "No videos matched"})
+			return (code, body)
+
+		combined = self.combineResults(responses)
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, combined)
+		return (code, body)
+
+	def searchVideoDescription(self, postData):
+		try:
+			# mandatory params
+			searchStr = postData['searchStr']
+
+			# optional params
+			pass
+		except Exception as e:
+			self.logger.error(e)
+			code = falcon.HTTP_406
+			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
+			return (code, body)
+
+		self.logger.info("Searching video descriptions for '%s'" % searchStr)
+
+		responses = []
+		# check cache first
+		for season in self.seasonArr:
+			for id in season:
+				if self.isSomething(self.cached_ids.get(id)):
+					string = self.cached_ids[id]['snippet']['description']
+					if self.searchAString(string, searchStr):
+						responses.append(self.cached_ids[id])
+
+		responses = self.simplify(responses)
+		#responses = self.cacheToResponseify(responses)
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, responses)
+		return (code, body)
+
+	def searchVideoTags(self, postData):
+		try:
+			# mandatory params
+			searchStr = postData['searchStr']
+
+			# optional params
+			pass
+		except Exception as e:
+			self.logger.error(e)
+			code = falcon.HTTP_406
+			body = self.schemaResponse("error", code, {"details": "Missing required fields: %s" % e})
+			return (code, body)
+
+		self.logger.info("Searching video descriptions for '%s'" % searchStr)
+
+		responses = []
+		for season in self.seasonArr:
+			for id in season:
+				if self.isSomething(self.cached_ids.get(id)):
+					string = ' '.join(self.cached_ids[id]['snippet']['tags'])
+					if self.searchAString(string, searchStr):
+						responses.append(self.cached_ids[id])
+
+
+		responses = self.cacheToResponseify(responses)
 		combined = self.combineResults(responses)
 		code = falcon.HTTP_200
 		body = self.schemaResponse("success", code, combined)
@@ -641,4 +479,166 @@ class Youtube(GmmApi):
 				code = response.status_code
 				body = self.schemaResponse("error", code, {"details" : "Youtube aint happy"})
 				return (code, body)
+
+	def getPlaylistIdsBySeason(self, postData):
+		"EAAaBlBUOkNESQ"
+		try:
+			# mandatory params
+			season = postData['season']
+
+			# optional params
+			pass
+		except Exception as e:
+			self.logger.error(e)
+			code = falcon.HTTP_406
+			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
+			return (code, body)
+
+		try:
+			season = int(season)
+			playlistId = self.playlistArr[season-1]
+		except Exception as e:
+			self.logger.error(e)
+			code = falcon.HTTP_406
+			body = self.schemaResponse("error", code, {"details": "Invalid Season %s"%season})
+			return (code, body)
+
+		self.logger.info("getting ids for season %s" % season)
+
+		params = {
+			'part': 'snippet',
+			'playlistId': playlistId,
+			'key': self.youtubeApiKey,
+			'maxResults': 50
+		}
+
+		videoIds = []
+		stuffToGet = True
+		try:
+			url = self.youtubeBaseUrl + '/playlistItems'
+			while stuffToGet:
+				response = requests.get(url, params=params)
+				if response.status_code == 200:
+					data = json.loads(response.text)
+
+					items = data.get('items') if self.isSomething(data.get('items')) else False
+					nextPageToken = data.get('nextPageToken') if self.isSomething(data.get('nextPageToken')) else False
+
+					for item in items:
+						videoIds.append({
+							'index' : item['snippet']['position'],
+							'id' : item['snippet']['resourceId']['videoId']
+						})
+					if nextPageToken:
+						params['pageToken'] = nextPageToken
+					else:
+						stuffToGet = False
+				else:
+					self.logger.info(url)
+					self.logger.info(params)
+					self.logger.error("ERROR: %s-%s" % (response.status_code, response.text))
+					code = falcon.HTTP_503
+					body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
+					return (code, body)
+
+		except Exception as e:
+			self.logger.error("REQUESTS ERROR: %s" % e)
+			code = falcon.HTTP_503
+			body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
+			return (code, body)
+
+		# Results should be in order from youtube but who knows so just sort by position
+		sortedByPosition = sorted(videoIds, key=lambda d: d['index'])
+		simpleList = []
+		for item in sortedByPosition:
+			simpleList.append(item['id'])
+
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, simpleList)
+		return (code, body)
+
+	def dumpCache(self, postData):
+		with open('data/savedData.json', 'w') as file:
+			file.write(json.dumps(self.cached_ids))
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, {"details": "Dumped %s items to file" % len(self.cached_ids)})
+		return (code, body)
+
+	def clearCache(self, postData):
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, {"details": "Cleared %s items from cache" % len(self.cached_ids)})
+		self.cached_ids = {}
+		return (code, body)
+
+
+
+	###
+	# INTERNAL METHODS, NOT CALLABLE
+	###
+	def readAllEpisodeIds(self):
+		try:
+			with open('data/allIds.json') as file:
+				ids = file.read()
+		except Exception as e:
+			return []
+		return json.loads(ids)
+
+	def buildCacheFromFile(self):
+		try:
+			with open('data/savedData.json') as file:
+				fileData = file.read()
+			self.cached_ids = json.loads(fileData)
+			self.logger.info("CACHE BUILT WITH %s ITEMS" % len(self.cached_ids))
+		except Exception as e:
+			self.logger.info("CACHE FILE MISSING")
+
+	def buildSearchFields(self):
+		for id,item in self.cached_ids.items():
+			if self.isNoneOrEmpty(item.get('searchSet')):
+				temp = set()
+				tempStr = ''
+				lower = item['snippet']['description'].lower()
+				words = lower.split(' ')
+				simpleWords = filter(str.isalnum, words)
+				for word in simpleWords:
+					temp.add(word)
+				for i in temp:
+					tempStr+= i+' '
+				tempStr = tempStr[:-1]
+				self.cached_ids[id]['searchSet'] = temp
+				self.cached_ids[id]['searchWords'] = tempStr
+
+	def cacheToResponseify(self, cacheResponse):
+		responsified = [{'items' : [], 'pageInfo' : {'totalResults' : len(cacheResponse)}}]
+		for item in cacheResponse:
+			item['cached'] = True
+			responsified[0]['items'].append(item)
+		return responsified
+
+	def simplify(self, responses):
+		simplified = {'totalResults' : len(responses), 'items' : []}
+		for item in responses:
+			simplified['items'].append({
+				'id' : item['id'],
+				'cached' : item.get('cached'),
+				'title': item['snippet']['title'],
+				'publishedAt' : item['snippet']['publishedAt'],
+				'channelId': item['snippet']['channelId'],
+				'channelTitle': item['snippet']['channelTitle'],
+				'statistics': item['statistics'],
+				'description': item['snippet']['description'],
+			})
+		return simplified
+
+	def combineResults(self, results):
+		items = []
+		itemCount = 0
+		for result in results:
+			items.append(result.get('items'))
+			itemCount+= int(result.get('pageInfo').get('totalResults'))
+		combined = {
+			'items' : items,
+			'totalResults' : itemCount
+		}
+		return combined
 

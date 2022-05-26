@@ -1,7 +1,7 @@
 version: '2.3'
 services:
   gmm-api:
-    image: gmm:latest
+    image: gmm-api:latest
     container_name: gmm-api
     restart: unless-stopped
     environment:
