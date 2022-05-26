@@ -41,11 +41,11 @@ class GmmData(object):
 	more19links = ["LeNwK3CCSzg","QXxEGFwTTxw","UTEYpUoi4Ew","Iu5vJUGv8z0","QSA0z22_SAU","e9YlvjJUnCg","-AuJiwjsmWk","XcFNxwEpe6k","9FciaSYVz-Q","b4kpd1x-ztc","n-EJYtFFeDs","3QuWOjlmBBQ","Woex1hLJpzw","PO5s9jomfPM","gFabRQaeJVY","GCMOsGpGxdE","OeytjLdLJbE","UhI9WOAfIX4","0YMfXUYh-x8","NT4lsP35G_Q","VsXmV28zbSY","4GK_OD9T0qA","Oz5rK_iX-O4","uUx1SEHxAUQ","eK8o11WWh8Y","m8_cmr-qT50","0RhhY174DvQ","RmG39BGl1x0","itHMwmiw1vM","7_3GfydG2KQ","HgyfCbLLMEs","PFEYNenY5S8","fwB4Fk3sc4w","stHuG0kUnJs","YupZtSxXZus","GtMkkDfUOqE","YsgcFDM7XvA","GpNpLwiNr8k","Pph-Cb1DFrM","ZI-7ECmecjI","7yuC_CjE6EU","2Nl59SR_U1Y","6E3-MRnh8TQ","AG5exFUMTko","o7T4uF80P2A","KM2kVdpjnYQ","lFBpKGfTi7c","c5MCtTA0icA","wLZsB1JHyCs","nYJxEwMHMNo","jCC6Tnk40Lk","LLrxO7kzNf0","7RgEnWE65zo","tmuYRj6_iJ8","trOlyaII0OU","7qiTnD17xqU","Vg4osKtEobk","InFih4_hN2o","9eySKKuJG5w","6ta8rIUH2vA","iye3-5l0OWY","wZ6ghgel8XE","te8Ns-Tv1x8","owXv5OfEpTs","g8ismjQCJYE","icxSMGhw9TI","4CcFKHu34qE","U9T6-70-Dro","cgdNLT1OFZg","b5taW8j6MaU","JOZwCahZf6I","KWO8DUe8-y4","ufOjwYdQ7xE","-bTicRaYnio","v3x7WD8oJik","wLZFsgSl4ZY","8ld5yjnF4mM","ytB3a9eSxaI","o3AsCoUIERg","dDVZMFhslAI","UUUVgbJmF2U","bM-mLOftI-U","wr1fOFsXML0","8fl4T9dhgD8","XMi74wSPeMM","iKmcZX0LT-0","1lh69lCEgFg","3qTxmgeloOE","cYB_4p_UaOU","-AzwYcS0XQk","_zUcFH3MIR4","h2sy5oeFc80","dzCYd5XEuLE","sZCwkOPy-mI","jwHgpnGYlR8","_loclvk2Kj4","dL70Nu4qt3s","Dzqzp1zd8jM","V57eNa0sNmg","k4rtXTkq6fQ","PQ2WffJEt64","mLdgepkDloQ","Epy5oX_4unQ","quVfXh2UZo0","ywTtRwMUEoI","BIFqJiWcFGg","htQwEj8WUFY","YQTwr7FAegE","3q_MRoizEWo","19sHJ5aBISQ","b86-vxpGgsY","nrYQoCJZ9oc","zOv-WpSpYTg"]
 	more20links = ["UhUgQJ4B6vg","be1oTgL_wyw","4hTNMHyGIK8","rpFWDPXAYBc","hetVWHReo8I","H2Qa9vJE7dg","_C4pDbMBZis","QAUKO9QTCwg","VZH9k0CLi2s","Kb109Krw2Yg","QYn2ViWgvsY","uu8JztepJMI","dKbJjeckFYw","PGlhKaYC8eg","AR_a-Rz2VtA","PlYFWcSBaO4","y4xS_CDuJpE","xOHWeCsiaRc","FgY6Uu2eK6k","nWQgyMIlneE","AwWTqL_BH0k","EQD0G7NzgVA","1tH1lYZyp3Q","Q3Z3qxLNQOk","0xlt0yGzsJg","sziPDASuw_4","idwgjfIvl3c","TIwu0fO7P7A","RZLBkz90y_8","nK6pdhRjMxk","Y3mmeroQcBk","N4mfuDfplMA","tvmPFdle9wA","5ADM8COpzHg","AcLpXHbQJzE","PTLAOzqIgiI","oOUmA6NSw60","oivfjFOVjds","yVGWBBCBdHs","TZLuQoNypzY","u0LFhbyaV7Q","WaG1EsgOWCM","Qz8fS3e-Foo","Fu6MaZHHYhk","E1QaMbz4D7Y","5ZZQW5c78ms","vwOJAGqL0Qc","TAjdytV_8fc","aXYIGIGK--8","SjT3qRuoWsA","k9ZkHQGGH_E","4yMRJnIEQhE","7r28Po-cdGI","CkGqSLYdGwg","DoxXxzqMNfk","gtY_N122Sd0","YCGUFVElJvY","TrNm2ACBBK0","yMEnEcOWQSM","gKzldpgOOGw","5eeRm45IhhI","ED2otSf6cgA","uEA41V0-tfA","yDJq_LYyAjY","o81jV5wQz9c","Q4PlDpichm8","6ZnPy6trgq8","jx-tAD7e5UU","vnI38P-olmg"]
 	more21links = ["lKfUBXnAjNo","4MXTG9f01hI","EBM4Ur9ktO8","WHoxe7KN3DE","bbspBP7hoM4","svYq1DEf7tA","FAl1ufAkccA","ZpRpAJXDsi4","UfLOB6PY_b4","_FEAMJDppac","hrElRKFH0sA","0DU-eBR67s4","zF8SY8wd0sY","07y6A04_6Q4","UZP_jLm21Ys","5d4gFNenbb0","8-MvhlQVRY8","Wa8b-R7HcBk","p5Yz8ILGDsU","sY48IjamYts","Bc8Utt0XO2w","ZOByPikrr5A","LHuS_uC4Kc8","SDZlNGitQ_U","9KFAfZk32QA","9-FHKkqbMhY","V0nuDoAfzVU","ZlFnGkCJh1w","JC2bKvC5_Pg","f16CKv_C918","JsE8k4fJOfU","L6-cqu5eZk8","Xit5RzTOxrY","-h0PIiGW5qY","xFIOj4Vj88Q","ikRTD9nBGD0","Co6hPrUlq9A","YQJKDSm_EJA","95sm1GndpNg","HG5xbTAPtRQ","jHJbnZ0bU9Y","_NMgMpN4SXM","ayp8YFXOZNY","sdD8Q1N69Q4","DqEHClT4B0g","dvl17OtS0g4","CMdgf6PoTOU","md7Qn8XnfPU","Hs2Tl3A1w5U","DGTO8I3rNJ8","avRAbVXB9A4","0lh6yRcow58","dw3T-XpsDjU","fIO9fa7b-P4","0EG5biGgN_E","fujrWOxgWLE","pWfec9f-fNE","wxeJVtdEn9Y","0EaGumNv2o8","eKNq_Ty7c-g","egMX5B-xKIc","vYsqECekVJs","MCIzJvnULv0","gOqG3L2NNME","EvJrPZ_VOnI","I4DWHpjkcEQ","bR3NyL9Yeyw","Pf6g_lCb6wU","4vuJfatywh4","DnBnKrINijo","ZpvaMo2DCLA","NcO6S7OaLWM","4XuUPRY7Dtk","hDQyVctiSBo","tiV4FtbL-tw","qds3cOV6Ebw","85MYnt51ROU"]
-	dummyArr = [];
+	dummyArr = []
 
 
 	seasonArray = [
-		pregmmlinks.reverse(),
+		pregmmlinks,
 		season1links,
 		season2links,
 		season3links,
@@ -56,17 +56,17 @@ class GmmData(object):
 		season8links,
 		season9links,
 		season10links,
-		season11links.reverse(),
-		season12links.reverse(),
-		season13links.reverse(),
-		season14links.reverse(),
-		season15links.reverse(),
-		season16links.reverse(),
-		season17links.reverse(),
-		season18links.reverse(),
-		season19links.reverse(),
-		season20links.reverse(),
-		season21links.reverse()
+		season11links,
+		season12links,
+		season13links,
+		season14links,
+		season15links,
+		season16links,
+		season17links,
+		season18links,
+		season19links,
+		season20links,
+		season21links
 	]
 
 	moreArray = [
@@ -78,7 +78,7 @@ class GmmData(object):
 		more5links,
 		more6links,
 		more7links,
-		more8links.reverse(),
+		more8links,
 		more9links,
 		more10links,
 		more11links,
@@ -93,3 +93,18 @@ class GmmData(object):
 		more20links,
 		more21links,
 	]
+	def __init__(self):
+		self.pregmmlinks.reverse()
+		self.season11links.reverse()
+		self.season12links.reverse()
+		self.season13links.reverse()
+		self.season14links.reverse()
+		self.season15links.reverse()
+		self.season16links.reverse()
+		self.season17links.reverse()
+		self.season18links.reverse()
+		self.season19links.reverse()
+		self.season20links.reverse()
+		self.season21links.reverse()
+
+		self.more8links.reverse()

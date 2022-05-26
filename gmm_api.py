@@ -33,20 +33,12 @@ class GmmApi(object):
             "statusCode": code,
             "data": data
         }
-
-        # for key in data:
-        #     responseSchema[key] = data[key]
-        # self.logger.info(responseSchema)
         return json.dumps(responseSchema, default=self.json_helper)
-        #return json.dumps(responseSchema)
 
     def json_helper(self, field):
-        if(isinstance(field, datetime)):
+        if isinstance(field, datetime):
             return str(field)
-        elif(isinstance(field, decimal.Decimal)):
-            #self.logger.info("Decimal:%s" % field)
-            #newnew = (str(x) for x in [field])
-            #return newnew
+        elif isinstance(field, decimal.Decimal):
             return str(field)
 
     def on_get(self, req, resp, method, detail=None):
@@ -102,6 +94,7 @@ class GmmApi(object):
         resp.text = body
 
 
+
     def debug(self, postData):
 
         code = falcon.HTTP_200
@@ -136,10 +129,20 @@ class GmmApi(object):
 
     @staticmethod
     def searchAThing(thing, searchStr):
+        thing = thing.lower()
+        searchStr = searchStr.lower()
         words = searchStr.split(' ')
         if searchStr not in thing:
             for word in words:
                 if word not in thing:
                     return False
         return True
+
+    @staticmethod
+    def trimGarbage(list):
+        temp = []
+        for i in list:
+            if i is not None:
+                temp.append(i)
+        return temp
 
