@@ -35,6 +35,11 @@ class GmmApi(object):
         }
         return json.dumps(responseSchema, default=self.json_helper)
 
+    def schemaToDict(self, schemaResponse):
+        code, data = schemaResponse
+        dataDict = json.loads(data)
+        return dataDict['data']
+
     def json_helper(self, field):
         if isinstance(field, set):
             return list(field)

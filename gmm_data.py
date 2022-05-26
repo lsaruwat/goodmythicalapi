@@ -1,6 +1,36 @@
 
 class GmmData(object):
 
+
+
+
+
+
+	playListLinks = [
+		'PL5D1D48359CF4BDE0',
+		'PL96EFA802DBFF1938',
+		'PLJ49NV73ttrunKAJ3MkV_gtADTrArl93Q',
+		'PLJ49NV73ttrvh20nQGPgPaCHqLgpJN7YZ',
+		'PLJ49NV73ttrtoqgGHymxdrJHdjJ9BubUi',
+		'PLJ49NV73ttrvoHn0pn-Bv-rOcaye2gF1G',
+		'PLJ49NV73ttrtQP_nY7NTldYfEsYmlCV2L',
+		'PLJ49NV73ttrs52WlwbXLctNtOMxlbZ3VO',
+		'PLJ49NV73ttrvdeqDBaqtbdE18ClnJ8tCL',
+		'PLJ49NV73ttruZ_iJ77VfhiuRB0NP7xgYQ',
+		'PLJ49NV73ttrv9JMidbDMUoENpoNWfWz-R',
+		'PLJ49NV73ttrvRH9MQ3ef6_Gw7T23RdOea',
+		'PLJ49NV73ttrusg4BUW4T7vszHPhk_rHbd',
+		'PLJ49NV73ttrtsw6FZ-J6h-5N3WhPM0uJX',
+		'PLJ49NV73ttrsQNXWud_2LQ3G-4shrz2hH',
+		'PLJ49NV73ttrvCQhgIj1Ovt3g0PBlO18s2',
+		'PLJ49NV73ttrvKwXQjGntFUjtYdhLcXaiu',
+		'PLJ49NV73ttrsVEMJar0COHGek3OD6v9hw',
+		'PLJ49NV73ttrvOBbw-tskTJaBf4dR9sVQH',
+		'PLJ49NV73ttruUDlp4LgOiIK_Heox_l5IC',
+		'PLJ49NV73ttrup0H8B6jSpnvuBfPQSMaL2'
+	]
+
+
 	pregmmlinks = ["TFGF6uWomDE","7WQUpt90q4w","i-AgHb-1JqE","aQm8u_0we94","THqhGG5WU2k","sXp_ER0HMzY","Q48C-JpfQkw","jW4oBfJw1UI","UTNsa-v7Ebc","BY2_i0sNKso","rw5Jco3oYno","n7gOSqpKkag","PM4UMVpSX5I","CfEf0KUqXjc","0DN1S3noeD0","o3399bUsie4","nnc-bSVEXNo","ieb8_HQMxx8","yY072UBxRJk","2r2iZ2mQEgo","mtNzvZIVxgU","3FrejJtOAbk","Z7b8rSXA3jQ","4zeV3mpSIqg","R4nqpmaODz8","yeTnEC_Ib3M","YiUWm-FGw7Q","BEet-cD6w1c","9OAF6-2R0bI","MsmsgPmGaEA","IzOqZaOOtDU","mkJR6Mqg6jw","fq4ncA4AwRM","l7zHEcduh_4","tRANnqTzu8I","N8f8MgZdxlg","DG4fuvrPn_M","fBEtwO1QJ00","TfvjK1Zp3y4","_kOWaGSh7tY","Rgq0MsT_BV0","xoltPV9EQ0g","Wbpeh1UQsFQ","gbC60il3KSI","yGgktMWCdPg","931QyTkkHCo","sOYSdHWo_O0","Jwc_SiXL49c","-LAOvIhMWd0","wqWxqPZyZHY","ySmoU_eGz0E","LoekDxpDI2c","38HT9QFahgI","v3tdWbDKDrM","fZtP7NbvX2M","bVjPMGNa6_4","TzVO5LTyTgU","bglWUGFezLg","_Ys55PF4Cv8","6uMQ9DG0HGc","GcjDT4-WOXc","k0F5ZvfXxuA","WPfhUhs-Iok","EMoeEyAxKl8","6bLmmO72jtE","okAIIPfQK78","jdV7h2zmR0E","V95O3e0wa80","4NcoCXep0DI","vMFKK9f1QZ4","oI6zjYsHwgg","ExS_n4RJouI","sAXoU43wU44","MAo9faUfSP4","Vob0XHJeQyU","0xABctKT57w","6m2nOuAS7Yo","vyM4MGucxTs","8PcadjU3wnY","YQSFSg6M7pQ","BUVWLI8KBnk","9ySaioGJ5zc","sdaiP-6F5S4","HNX6FYqOZH4","3DKz7iAtBgA","cdzhfnyn3WY","5onGiisj_kU","t65TaH_FEP8","Vjnso_DYvwM","_Zl8Grv9n8E","OtJbWob7LIA","YbQnX6ZTRxQ","XLInCYqOS_M"]
 	season1links = ["qFgBPZPdqY4","dEMj4mDuadI","NX7RQmb9d-Q","Koi73NaLDI0","A-OZK2I4CtQ","Pb7OWc5mwCA","IH1fgr-a_DU","FJsKfEz3O6M","JlmN3MQ-_50","xEQsFVM7VI4","cI2nsD_OajM","BRM6v4jkvB0","_6bg0FSCzXU","pJ-jc-8VwZU","SWew97PXuDI","Kp5F8Wu3uAc","62VNLeiSaik","qyQeauD04bE","QjH1FSGwVUM","Jz_ChZstB5o","M-8jBNUQ9Eg","mnMUkcWaeyA","hSpF0J0Gq7Y","EdNS8w4vK_8","-IIaY_LwlgY","XJeN4cGguAA","jSnE4VWzqQ4","Uv9gT-kVivk","qYNunzggd3g","G7oodKTyI9k","k3EvSBJRckg","0h2KT0UUBco","kK7KNAcaRuk","XL853Bix730","aqVDDFR-iiU","I6ikZkhq_JI","vF164dOAHzQ","bidCyHBADgk","-0Z06CyRw-E","5OzEQzstU84","lmlOhH77nb0","JtURBEKJ5XQ","YbZbDSTBEiM","QjT3SgQLtQ4","wm46KKO49hw","bqOBpW35qGQ","9kek1VVyiEw","lf0A5eLZLsE","HI1Zf_Qt8EM","oLkS_gdsSMU","oHrBkkTRcAk","nYf1MM6pm-4","16E9_6L2ocA","s5SJcdoqahQ","NVlU7ehBiZA","rvaHDaznFt4","dK2g9UMqzBQ","sfSReAE6NOQ","FqVXncIWtNU","4cfeEW7Pgpc","v5itFvGgeqs","wxnFZDcyjbE","afxpnYtI7jI","euRzBV2Kdao","r82yGH3LWho","56LYTHt1Dz0","_2UBoR0iVoA","IxEX6bPyCbo","x3piYN2lzyQ","g7zHKcYzjNQ","mcSYpZchFpI","0O5Nrytz_ew","dCq1dPZsl_w","3Nxk0Zzyl2I","LrawDNmTVT4","cTte0H8OhvQ","l4SDuF8Z4JM","rYCvcJUk_jA","7ccLWsSANjQ","bTjanydZh9Q","NiMUVb88Nxw","bw3_KIxQjPg","HK5tbSgu9NE","4s04YRwQ2AY","_22N3Y-M0Zo","_Vxf8WOT8uc","6r89HOM2uCQ","b8xE2tigA5o","nVj7wzEO_uU","0kYgVUNJYfY","0ofHSsZgcsg","RpJarPEZZi4","-yWkJ0noo9Y","ivbSQtTetWU","Zxb0A2Lkjgc","IPQSyx21U18","rxrzvGNhDOg","et6KXFSu9kQ","Tfw3h2UqaNo","tepTJlKsv8k","cHUP69hEPIg","8h8BYwfHaYc","aca8F2JvnDI","GuRx8UMj5pU","P_ISAK7fRhk","5NTHKkNMjRw","BQWYMffLSFg","6NdfZZ9ttK8","gsMv0L9yxss","-Th-3K2_OGU","kqcFlNz0W0M","SOQohZQnkII","tbip554-rfU","XJBTSwwPMcQ","-kJne69gIHw","YlyUga45lOk","MWPp1HwQ_bc","IbT7xNf9zXQ","mwkNftc44Qg","vn9_nLSCy7g","-EQyZpvfLro","IVH1Hp6AXHI","rfCCF40by-A","hboberlYplY","kKDjkriqqDQ","2KVf8qlBzLk","5bbyz428moc","HcoU5f-_YQc","xkUeBJ6HmhQ"]
 	season2links = ["nBocaxDPsw4","LJ3sY6NpNSY","nUApFRG6RSw","9Lna0BbtxyQ","ANF-0bvJYf4","4h1V3DCml3I","-hb7vLh-AXI","lSjS52xzxJQ","ntx0mAhvB48","CWgPEsqJDcI","LUJdGAk_6LI","Jg1RLcNlzZ4","8fYCoMlnUH4","zcThN1dZMe4","8el_WieftDo","sPwXLbFD3ng","XdWQon--heY","vpxNjPcbXCc","_rIvmcFTX8E","TZoimbU4ToM","-G-Uu5D6bH8","wpnhEm73YU4","Qiy7jRCeTtI","89-gz3e8ctc","7MKnerzYg4E","EfyKpcUg0yo","niE5irkhO2k","lcicKXi2FyI","mNbvtWUKRAg","yL53MJHiDrw","3a6GnkG9EO0","XjCTtTwae5M","okJsGQBBMVo","SRpRr384_go","f-otdLtCQLw","zt3xKY_hF0Q","hnaOpWCJwXU","tckkLVhHNxY","nqXQcDSkb-s","E0O6psQWMAg","SMjlJLNkJaw","71rKGkHL7dQ","NV6lr99LMqk","76bMY6YujaE","qL9sCeoP_-A","hu0B3K-JUF8","vE2nBhYa4d4","Ueh6wxPcw-0","o-_lIXvj4ak","kbfI8kskBcM","xknZIMO4p78","A_OnTXfZ4eI","penLGTACZ2o","A7uzqlHmDVI","twJxWZivQh4","N970lhPK1hY","-V9OuyBX2XQ","wea-A8Lgjxs","aFKI1w6-mZA","zJd2oCInGYs","wrqyA4JU9Os","gvLkwVtgd1A","IehGC4_PqPs","Sik_7V-a0dU","RF0FHoBQdz4","_o_r0g-un-8","0lb9N0w9m4U","DG4ZK4DIXJA","2KjDDGgbI2k","i85H2SEN80E","8bS1jdWHezA","NOG60_FwEVg","VhHWu4Qsxnw","w9sn6IMYqrY","Mw8-34LFNt8","_s2anwmG7rU","07Jg_tQ1ltg","7botw7NFSSA","ryaqUjZFWWI","-smGqkybhIc","zD4yE9Soz88","z2N0BQ8-Who","s1LO2NpbbkQ","GOKV1KhdRcQ","vAcbhtDPbl0"]
@@ -44,7 +74,7 @@ class GmmData(object):
 	dummyArr = []
 
 
-	seasonArray = [
+	gmmArray = [
 		pregmmlinks,
 		season1links,
 		season2links,

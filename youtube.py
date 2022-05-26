@@ -18,15 +18,53 @@ class Youtube(GmmApi):
 		self.idLimit = 50
 		# self.seasonIds = ['PL5D1D48359CF4BDE0', 'PL96EFA802DBFF1938', 'PLJ49NV73ttrunKAJ3MkV_gtADTrArl93Q', 'PLJ49NV73ttrvh20nQGPgPaCHqLgpJN7YZ', 'PLJ49NV73ttrtoqgGHymxdrJHdjJ9BubUi', 'PLJ49NV73ttrvoHn0pn-Bv-rOcaye2gF1G', 'PLJ49NV73ttrtQP_nY7NTldYfEsYmlCV2L', 'PLJ49NV73ttrs52WlwbXLctNtOMxlbZ3VO', 'PLJ49NV73ttrvdeqDBaqtbdE18ClnJ8tCL', 'PLJ49NV73ttruZ_iJ77VfhiuRB0NP7xgYQ', 'PLJ49NV73ttrv9JMidbDMUoENpoNWfWz-R', 'PLJ49NV73ttrvRH9MQ3ef6_Gw7T23RdOea', 'PLJ49NV73ttrusg4BUW4T7vszHPhk_rHbd', 'PLJ49NV73ttrtsw6FZ-J6h-5N3WhPM0uJX', 'PLJ49NV73ttrsQNXWud_2LQ3G-4shrz2hH', 'PLJ49NV73ttrvCQhgIj1Ovt3g0PBlO18s2', 'PLJ49NV73ttrvKwXQjGntFUjtYdhLcXaiu', 'PLJ49NV73ttru4iSmiDijuaoegvuQZmT6l','PLJ49NV73ttrvOBbw-tskTJaBf4dR9sVQH', 'PLJ49NV73ttruUDlp4LgOiIK_Heox_l5IC', 'PLJ49NV73ttrup0H8B6jSpnvuBfPQSMaL2']
 		self.giantDataSet = GmmData()
-		self.seasonArr = self.giantDataSet.seasonArray
+		self.seasonArr = self.giantDataSet.gmmArray # hard coded values from my old scraping attempts
+		self.playlistArr = self.giantDataSet.playListLinks
 		self.buildCacheFromFile()
-		self.logger.info("CACHE BUILT WITH %s ITEMS" % len(self.cached_ids))
+
+		allIdsFromFile = self.readAllEpisodeIds()
+		if len(allIdsFromFile):
+			self.logger.info("%s SEASONS RESTORED FROM FILE" % len(allIdsFromFile))
+			self.seasonArr = allIdsFromFile
+
+	def getAllEpisodeIds(self, postData):
+		# optional params
+		writeToFile = postData.get('writeToFile')
+
+		self.seasonArr = []
+		for i in range(len(self.playlistArr)):
+			seasonIds = self.schemaToDict(self.getPlaylistBySeason({'season' : i+1}))
+			idArr = []
+			for id in seasonIds:
+				idArr.append(id)
+			self.seasonArr.append(idArr)
+
+		if writeToFile:
+			with open('data/allIds.json', 'w') as file:
+				file.write(json.dumps(self.seasonArr))
+
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, self.seasonArr)
+		return (code, body)
+
+	def readAllEpisodeIds(self):
+		try:
+			with open('data/allIds.json') as file:
+				ids = file.read()
+		except Exception as e:
+			return []
+		return json.loads(ids)
+
 
 
 	def buildCacheFromFile(self, postData=None):
-		with open('data/savedData.json') as file:
-			fileData = file.read()
-		self.cached_ids = json.loads(fileData)
+		try:
+			with open('data/savedData.json') as file:
+				fileData = file.read()
+			self.cached_ids = json.loads(fileData)
+			self.logger.info("CACHE BUILT WITH %s ITEMS" % len(self.cached_ids))
+		except Exception as e:
+			self.logger.info("CACHE FILE MISSING")
 
 	def buildSearchFields(self):
 		for id,item in self.cached_ids.items():
@@ -78,6 +116,84 @@ class Youtube(GmmApi):
 				'description': item['snippet']['description'],
 			})
 		return simplified
+
+	def getPlaylistBySeason(self, postData):
+		"EAAaBlBUOkNESQ"
+		try:
+			# mandatory params
+			season = postData['season']
+
+			# optional params
+			pass
+		except Exception as e:
+			self.logger.error(e)
+			code = falcon.HTTP_406
+			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
+			return (code, body)
+
+		try:
+			season = int(season)
+			playlistId = self.playlistArr[season-1]
+		except Exception as e:
+			self.logger.error(e)
+			code = falcon.HTTP_406
+			body = self.schemaResponse("error", code, {"details": "Invalid Season %s"%season})
+			return (code, body)
+
+		self.logger.info("getting ids for season %s" % season)
+
+		params = {
+			'part': 'snippet',
+			'playlistId': playlistId,
+			'key': self.youtubeApiKey,
+			'maxResults': 50
+		}
+
+		videoIds = []
+		stuffToGet = True
+		try:
+			url = self.youtubeBaseUrl + '/playlistItems'
+			while stuffToGet:
+				response = requests.get(url, params=params)
+				if response.status_code == 200:
+					data = json.loads(response.text)
+
+					items = data.get('items') if self.isSomething(data.get('items')) else False
+					nextPageToken = data.get('nextPageToken') if self.isSomething(data.get('nextPageToken')) else False
+
+					for item in items:
+						videoIds.append({
+							'index' : item['snippet']['position'],
+							'id' : item['snippet']['resourceId']['videoId']
+						})
+					if nextPageToken:
+						params['pageToken'] = nextPageToken
+					else:
+						stuffToGet = False
+				else:
+					self.logger.info(url)
+					self.logger.info(params)
+					self.logger.error("ERROR: %s-%s" % (response.status_code, response.text))
+					code = falcon.HTTP_503
+					body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
+					return (code, body)
+
+		except Exception as e:
+			self.logger.error("REQUESTS ERROR: %s" % e)
+			code = falcon.HTTP_503
+			body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
+			return (code, body)
+
+		# Results should be in order from youtube but who knows so just sort by position
+		sortedByPosition = sorted(videoIds, key=lambda d: d['index'])
+		simpleList = []
+		for item in sortedByPosition:
+			simpleList.append(item['id'])
+
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, simpleList)
+		return (code, body)
+
 
 	def combineResults(self, results):
 		items = []
@@ -396,7 +512,7 @@ class Youtube(GmmApi):
 
 		try:
 			season = int(season)
-			seasonIds = self.seasonArr[season]
+			seasonIds = self.seasonArr[season-1]
 		except Exception as e:
 			self.logger.error(e)
 			code = falcon.HTTP_406
