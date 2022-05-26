@@ -134,10 +134,10 @@ class Youtube(GmmApi):
 				temp.append(id)
 
 		if len(responses) == len(seasonIds):
-			responses = self.cacheToResponseify(responses)
-			combined = self.combineResults(responses)
+			#responses = self.cacheToResponseify(responses)
+			#combined = self.combineResults(responses)
 			code = falcon.HTTP_200
-			body = self.schemaResponse("success", code, combined)
+			body = self.schemaResponse("success", code, responses)
 			return (code, body)
 		if len(temp):
 			seasonIds = temp
