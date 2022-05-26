@@ -280,7 +280,7 @@ class Youtube(GmmApi):
 			searchStr = postData['searchStr']
 
 			# optional params
-			pass
+			simplify = postData.get('simplify')
 		except Exception as e:
 			self.logger.error(e)
 			code = falcon.HTTP_406
@@ -297,8 +297,8 @@ class Youtube(GmmApi):
 					string = self.cached_ids[id]['snippet']['description']
 					if self.searchAString(string, searchStr):
 						responses.append(self.cached_ids[id])
-
-		responses = self.simplify(responses)
+		if simplify:
+			responses = self.simplify(responses)
 		#responses = self.cacheToResponseify(responses)
 		code = falcon.HTTP_200
 		body = self.schemaResponse("success", code, responses)
