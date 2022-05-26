@@ -23,10 +23,26 @@ class Youtube(GmmApi):
 		self.logger.info("CACHE BUILT WITH %s ITEMS" % len(self.cached_ids))
 
 
-	def buildCacheFromFile(self):
+	def buildCacheFromFile(self, postData=None):
 		with open('data/savedData.json') as file:
 			fileData = file.read()
 		self.cached_ids = json.loads(fileData)
+
+	def buildSearchFields(self):
+		for id,item in self.cached_ids.items():
+			if self.isNoneOrEmpty(item.get('searchSet')):
+				temp = set()
+				tempStr = ''
+				lower = item['snippet']['description'].lower()
+				words = lower.split(' ')
+				simpleWords = filter(str.isalnum, words)
+				for word in simpleWords:
+					temp.add(word)
+				for i in temp:
+					tempStr+= i+' '
+				tempStr = tempStr[:-1]
+				self.cached_ids[id]['searchSet'] = temp
+				self.cached_ids[id]['searchWords'] = tempStr
 
 	def dumpCache(self, postData):
 		with open('data/savedData.json', 'w') as file:
@@ -41,13 +57,27 @@ class Youtube(GmmApi):
 		self.cached_ids = {}
 		return (code, body)
 
-
 	def cacheToResponseify(self, cacheResponse):
 		responsified = [{'items' : [], 'pageInfo' : {'totalResults' : len(cacheResponse)}}]
 		for item in cacheResponse:
 			item['cached'] = True
 			responsified[0]['items'].append(item)
 		return responsified
+
+	def simplify(self, responses):
+		simplified = {'totalResults' : len(responses), 'items' : []}
+		for item in responses:
+			simplified['items'].append({
+				'id' : item['id'],
+				'cached' : item.get('cached'),
+				'title': item['snippet']['title'],
+				'publishedAt' : item['snippet']['publishedAt'],
+				'channelId': item['snippet']['channelId'],
+				'channelTitle': item['snippet']['channelTitle'],
+				'statistics': item['statistics'],
+				'description': item['snippet']['description'],
+			})
+		return simplified
 
 	def combineResults(self, results):
 		items = []
@@ -111,7 +141,7 @@ class Youtube(GmmApi):
 				body = self.schemaResponse("error", code, {"details" : "Youtube aint happy"})
 				return (code, body)
 
-	def searchVideoDescription(self, postData):
+	def searchRealTimeVideoDescription(self, postData):
 		try:
 			# mandatory params
 			searchStr = postData['searchStr']
@@ -135,19 +165,18 @@ class Youtube(GmmApi):
 			for id in season:
 				allIds.append(id)
 				if self.isSomething(self.cached_ids.get(id)):
-					thing = self.cached_ids[id]['snippet']['description']
-					start = time()
+					thing = self.cached_ids[id]['searchWords']
 					if self.searchAThing(thing, searchStr):
 						responses.append(self.cached_ids[id])
-					end	= time()
-					total = end-start
-					self.logger.info("%s took %ss to search" % (id, total))
 				else:
 					temp.append(id)
-
-		responses = self.cacheToResponseify(responses)
+		start = time()
+		end = time()
+		total = end - start
+		self.logger.info("responseify took %ss to complete" % total)
 
 		if len(responses) == len(allIds):
+			responses = self.cacheToResponseify(responses)
 			combined = self.combineResults(responses)
 			code = falcon.HTTP_200
 			body = self.schemaResponse("success", code, combined)
@@ -202,6 +231,70 @@ class Youtube(GmmApi):
 		code = falcon.HTTP_200
 		body = self.schemaResponse("success", code, combined)
 		return (code, body)
+
+	def searchVideoDescription(self, postData):
+		try:
+			# mandatory params
+			searchStr = postData['searchStr']
+
+			# optional params
+			pass
+		except Exception as e:
+			self.logger.error(e)
+			code = falcon.HTTP_406
+			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
+			return (code, body)
+
+		self.logger.info("Searching video descriptions for '%s'" % searchStr)
+
+		responses = []
+		seasonArr = self.seasonArr[1:]
+		# check cache first
+		for season in seasonArr:
+			for id in season:
+				if self.isSomething(self.cached_ids.get(id)):
+					thing = self.cached_ids[id]['snippet']['description']
+					if self.searchAThing(thing, searchStr):
+						responses.append(self.cached_ids[id])
+
+		responses = self.simplify(responses)
+		#responses = self.cacheToResponseify(responses)
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, responses)
+		return (code, body)
+
+	def searchVideoTags(self, postData):
+		try:
+			# mandatory params
+			searchStr = postData['searchStr']
+
+			# optional params
+			pass
+		except Exception as e:
+			self.logger.error(e)
+			code = falcon.HTTP_406
+			body = self.schemaResponse("error", code, {"details": "Missing required fields"})
+			return (code, body)
+
+		self.logger.info("Searching video descriptions for '%s'" % searchStr)
+
+		responses = []
+		seasonArr = self.seasonArr[1:]
+		# check cache first
+		for season in seasonArr:
+			for id in season:
+				if self.isSomething(self.cached_ids.get(id)):
+					thing = self.cached_ids[id]['snippet']['tags']
+					if self.searchAThing(thing, searchStr):
+						responses.append(self.cached_ids[id])
+
+
+		responses = self.cacheToResponseify(responses)
+		combined = self.combineResults(responses)
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, combined)
+		return (code, body)
+
 
 	def getVideoDetailsBySeason(self, postData):
 		'https://youtube.googleapis.com/youtube/v3/playlistItems?id=efasdfasdf&'

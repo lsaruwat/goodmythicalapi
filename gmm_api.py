@@ -36,7 +36,9 @@ class GmmApi(object):
         return json.dumps(responseSchema, default=self.json_helper)
 
     def json_helper(self, field):
-        if isinstance(field, datetime):
+        if isinstance(field, set):
+            return list(field)
+        elif isinstance(field, datetime):
             return str(field)
         elif isinstance(field, decimal.Decimal):
             return str(field)
@@ -136,6 +138,14 @@ class GmmApi(object):
             for word in words:
                 if word not in thing:
                     return False
+        return True
+
+    @staticmethod
+    def searchASet(_set, searchStr):
+        words = searchStr.split(' ')
+        for word in words:
+            if word not in _set:
+                return False
         return True
 
     @staticmethod
