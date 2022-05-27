@@ -138,8 +138,14 @@ class GmmApi(object):
     def searchAString(string, searchStr):
         string = string.lower()
         searchStr = searchStr.lower()
-        words = searchStr.split(' ')
-        if searchStr not in string:
+        specific = searchStr.split('"')
+        # only match the exact string in quotes
+        if len(specific) == 3:
+            searchStr = specific[1]
+            if searchStr not in string:
+                return False
+        else:
+            words = searchStr.split(' ')
             for word in words:
                 if word not in string:
                     return False
