@@ -16,4 +16,4 @@ WORKDIR /app
 COPY . /app
 
 # Run api through gunicorn when the container launches
-CMD ["gunicorn", "-b", ":80", "--workers=2", "--reload", "main"]
+CMD ["gunicorn", "-b", ":80", "--workers=2", "--reload", "--timeout=300", "main"]
