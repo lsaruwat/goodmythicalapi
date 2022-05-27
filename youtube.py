@@ -125,63 +125,19 @@ class Youtube(GmmApi):
 			return (code, body)
 
 		responses = []
-		temp = []
 		# check cache first
 		for id in seasonIds:
 			if self.isSomething(self.cached_ids.get(id)):
 				responses.append(self.cached_ids[id])
-			else:
-				temp.append(id)
 
 		if len(responses) == len(seasonIds):
-			#responses = self.cacheToResponseify(responses)
-			#combined = self.combineResults(responses)
 			code = falcon.HTTP_200
 			body = self.schemaResponse("success", code, responses)
 			return (code, body)
-		if len(temp):
-			seasonIds = temp
+		else:
+			self.saveVideoDetailsBySeason({'season' : season})
+			return self.getVideoDetailsBySeason({'season' : season})
 
-		pages = self.getMaxPages(len(seasonIds), self.idLimit)
-		for i in range(pages):
-			pageIds = seasonIds[:self.idLimit]# get a slice of ids
-			seasonIds = seasonIds[self.idLimit:]# now cut those from the list
-			params = {
-				'part' : 'snippet,contentDetails,statistics',
-				'id' : self.listToCsvParams(pageIds),
-				'key' : self.youtubeApiKey
-			}
-			try:
-				url = self.youtubeBaseUrl + '/videos'
-				response = requests.get(url, params=params)
-			except Exception as e:
-				self.logger.error("REQUESTS ERROR: %s" % e)
-				code = falcon.HTTP_503
-				body = self.schemaResponse("error", code, {"details": "Youtube aint happy"})
-				return (code, body)
-
-			if response.status_code == 200:
-				data = json.loads(response.text)
-				items = data.get('items')
-				if items and len(items):
-					for item in items:
-						self.cached_ids[item['id']] = item
-					responses.append(data)
-				else:
-					self.logger.error("404: %s" % pageIds)
-					code = falcon.HTTP_404
-					body = self.schemaResponse("error", code, data)
-					return (code, body)
-			else:
-				self.logger.error("Youtube Angry: %s-%s" % (response.status_code, response.text))
-				code = response.status_code
-				body = self.schemaResponse("error", code, {"details" : "Youtube aint happy"})
-				return (code, body)
-
-		combined = self.combineResults(responses)
-		code = falcon.HTTP_200
-		body = self.schemaResponse("success", code, combined)
-		return (code, body)
 
 	def searchRealTimeVideoDescription(self, postData):
 		try:
@@ -341,7 +297,7 @@ class Youtube(GmmApi):
 			season = postData['season']
 
 			#optional params
-			page = postData.get('page')
+			pass
 		except Exception as e:
 			self.logger.error(e)
 			code = falcon.HTTP_406
@@ -363,10 +319,6 @@ class Youtube(GmmApi):
 		for i in range(pages):
 			pageIds = seasonIds[:self.idLimit]# get a slice of ids
 			seasonIds = seasonIds[self.idLimit:]# now cut those from the list
-			#check cache first
-			if self.cached_ids.get(hash(str(pageIds))) and self.cached_ids.get(hash(str(pageIds))) != '':
-				responses.append(self.cached_ids[hash(str(pageIds))])
-				continue
 			params = {
 				'part' : 'snippet,contentDetails,statistics',
 				'id' : self.listToCsvParams(pageIds),
@@ -386,6 +338,7 @@ class Youtube(GmmApi):
 				items = data.get('items')
 				if items and len(items):
 					for item in items:
+						item['season'] = season
 						videoDict[item['id']] = item
 						self.cached_ids[item['id']] = item
 				else:
@@ -405,8 +358,7 @@ class Youtube(GmmApi):
 				savedData = json.loads(savedData)
 
 			for key, value in videoDict.items():
-				if self.isNoneOrEmpty(savedData.get(key)):
-					savedData[key] = value
+				savedData[key] = value
 
 			with open('data/savedData.json', 'w') as file:
 				file.write(json.dumps(savedData))
@@ -417,6 +369,18 @@ class Youtube(GmmApi):
 			return (code, body)
 		code = falcon.HTTP_200
 		body = self.schemaResponse("success", code, {"details" : "Saved Season %s to disk" % season})
+		return (code, body)
+
+	def saveAllVideoDetails(self, postData):
+		counter = 0
+		for i in range(len(self.seasonArr)):
+			counter+= len(self.seasonArr[i])
+			status,stuff = self.saveVideoDetailsBySeason({'season' : i+1})
+			if status != falcon.HTTP_200:
+				return (status, stuff)
+
+		code = falcon.HTTP_200
+		body = self.schemaResponse("success", code, {"details" : "Updated all %s videos!" % counter})
 		return (code, body)
 
 	def getVideoDetailsBySeasonAndEpisode(self, postData):
