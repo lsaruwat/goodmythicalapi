@@ -313,8 +313,10 @@ class Youtube(GmmApi):
 			body = self.schemaResponse("error", code, {"details": "Invalid Season %s"%season})
 			return (code, body)
 
+		self.logger.info("Saving %s episodes in season %s" % (len(seasonIds), season))
+
 		pages = self.getMaxPages(len(seasonIds), self.idLimit)
-		responses =[]
+		episode = 1
 		videoDict = {}
 		for i in range(pages):
 			pageIds = seasonIds[:self.idLimit]# get a slice of ids
@@ -339,8 +341,10 @@ class Youtube(GmmApi):
 				if items and len(items):
 					for item in items:
 						item['season'] = season
+						item['episode'] = episode
 						videoDict[item['id']] = item
 						self.cached_ids[item['id']] = item
+						episode+=1
 				else:
 					self.logger.error("404: %s" % pageIds)
 					code = falcon.HTTP_404
